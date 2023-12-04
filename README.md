@@ -81,6 +81,30 @@ chronoSocket.onMessage((client, payload) => {
 });
 ```
 
+### Send messages
+
+The `sendMessage` function enables the transmission of messages to either a specified room or for broadcasting purposes. It requires the following parameters:
+
+- `clientId`: Identification for the client socket intended to receive the message.
+- `eventName`: Name of the event triggering the message.
+
+- `payload`: Content of the message to be sent.
+
+- `broadcast` (optional, defaults to `true`): Dictates whether the message will reach all occupants in the room, including the sender. Set to `false` for pinpointed communication within a specific room, excluding the sender.
+
+- `room` (optional): Specifies the target room for the message. When `broadcast` is set to `true` and a `room` is specified, the message will be distributed to all individuals in that room, encompassing the sender. To exclude the sender from the recipients in the same room, toggle `broadcast` to `false`.
+
+This function facilitates message delivery by first retrieving the socket associated with the provided client ID. It then proceeds to handle different scenarios based on the provided parameters, such as broadcasting the message to all clients, sending it exclusively to a specified room, or handling volatile message transmission if configured.
+
+If the specified client socket is not found, an error message is logged, ensuring graceful error handling within the communication system.
+
+```ts
+chronoSocket.onMessage((client, payload) => {
+  const { room } = payload;
+  chronoSocket.sendMessage(client, "message", payload, true, room);
+});
+```
+
 ### Listening to custom events
 
 The `on` method in `ChronoSocketHub` enables developers to create custom event listeners by specifying the event name and providing a corresponding callback function to handle these events. This method acts as a versatile mechanism, allowing the application to listen for user-defined events transmitted via the socket connection. By employing the `on` method, developers can register event-specific callbacks, ensuring that when a particular event is triggered, the associated callback function executes. This functionality enables developers to implement custom logic, execute actions, or trigger specific behaviors in response to user-defined events within their real-time communication infrastructure, offering a high degree of flexibility and customization.
@@ -111,30 +135,6 @@ chronoSocket.removeAllListener(Symbol("event-name"));
 
 // using strings
 chronoSocket.removeAllListener("event-name");
-```
-
-### Send messages
-
-The `sendMessage` function enables the transmission of messages to either a specified room or for broadcasting purposes. It requires the following parameters:
-
-- `clientId`: Identification for the client socket intended to receive the message.
-- `eventName`: Name of the event triggering the message.
-
-- `payload`: Content of the message to be sent.
-
-- `broadcast` (optional, defaults to `true`): Dictates whether the message will reach all occupants in the room, including the sender. Set to `false` for pinpointed communication within a specific room, excluding the sender.
-
-- `room` (optional): Specifies the target room for the message. When `broadcast` is set to `true` and a `room` is specified, the message will be distributed to all individuals in that room, encompassing the sender. To exclude the sender from the recipients in the same room, toggle `broadcast` to `false`.
-
-This function facilitates message delivery by first retrieving the socket associated with the provided client ID. It then proceeds to handle different scenarios based on the provided parameters, such as broadcasting the message to all clients, sending it exclusively to a specified room, or handling volatile message transmission if configured.
-
-If the specified client socket is not found, an error message is logged, ensuring graceful error handling within the communication system.
-
-```ts
-chronoSocket.onMessage((client, payload) => {
-  const { room } = payload;
-  chronoSocket.sendMessage(client, "message", payload, true, room);
-});
 ```
 
 ### Get all sockets
