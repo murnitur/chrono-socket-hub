@@ -1,4 +1,3 @@
-import { io } from "socket.io-client";
 import ChronoSocket from "./core/ChronoSocket";
 import { log } from "@drantaz/f-log";
 
