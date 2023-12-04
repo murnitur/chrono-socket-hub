@@ -56,7 +56,7 @@ Upon instantiation, ChronoSocketHub seamlessly initializes and begins listening 
 | `agent`      | Defines the job scheduling agent for ChronoSocketHub (`agenda` or `bullmq`).                           | `agenda`          | `"agenda" \| "bullmq"` |
 | `db`         | Specifies the database for Agenda or BullMQ.                                                           | `undefined`       | `string`               |
 | `socketPath` | Specifies the path for the socket connection.                                                          | `/`               | `string`               |
-| `origin`     | Sets the allowed origins for CORS (Cross-Origin Resource Sharing).                                     | `undefined`       | `string`               |
+| `origin`     | Sets the allowed origins for CORS (Cross-Origin Resource Sharing).                                     | `*`               | `string`               |
 | `methods`    | Defines the allowed HTTP methods for CORS.                                                             | `['GET', 'POST']` | `string[]`             |
 | `logging`    | Indicates whether logging is enabled.                                                                  | `true`            | `boolean`              |
 | `app`        | Express application instance for integration.                                                          | `undefined`       | `Express`              |
