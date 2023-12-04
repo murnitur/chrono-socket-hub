@@ -92,7 +92,6 @@ class ChronoSocket {
   ) {
     const socket = this.sockets.get(clientId);
     if (socket) {
-      // const payload = Helper.isJSON(body) ? JSON.stringify(body) : body;
       if (!broadcast && !room) {
         log("Please specify a room for a non-broadcast message", "error");
         return;
