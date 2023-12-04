@@ -34,7 +34,7 @@ server.listen(80, () => {
 
 ### Integrating with Express
 
-For developers utilizing Express and having an app initialized via express(), integrating ChronoSocketHub is straightforward. Simply include ChronoSocketHub within the configuration settings of your Express application. By incorporating ChronoSocketHub into the configuration, users can seamlessly harness its functionalities alongside their Express app, enabling real-time communication, job scheduling, and message queue management within a unified ecosystem. This integration empowers developers to effortlessly leverage the capabilities of ChronoSocketHub while maintaining the robustness and flexibility of their Express-based applications.
+For developers utilizing Express and having an app initialized via `express()`, integrating ChronoSocketHub is straightforward. Simply include ChronoSocketHub within the configuration settings of your Express application. By incorporating ChronoSocketHub into the configuration, users can seamlessly harness its functionalities alongside their Express app, enabling real-time communication, job scheduling, and message queue management within a unified ecosystem. This integration empowers developers to effortlessly leverage the capabilities of ChronoSocketHub while maintaining the robustness and flexibility of their Express-based applications.
 
 ```ts
 import express from "express";
