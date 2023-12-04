@@ -47,9 +47,9 @@ const chronoSocket = new ChronoSocket({ app });
 
 ## Listening to client connections
 
-"Upon instantiation, `ChronoSocketHub` seamlessly initializes and starts listening for connections, streamlining the setup process for developers. This automatic functionality eliminates the need for explicit start commands, allowing users to focus on their application logic without the additional overhead of manual initialization. `ChronoSocketHub`, by default, activates its connection listening capabilities upon instantiation, ensuring a hassle-free integration experience for developers seeking immediate and effortless utilization of its real-time communication, job scheduling, and message queue management features within their applications.
+Upon instantiation, `ChronoSocketHub` seamlessly initializes and starts listening for connections, streamlining the setup process for developers. This automatic functionality eliminates the need for explicit start commands, allowing users to focus on their application logic without the additional overhead of manual initialization. `ChronoSocketHub`, by default, activates its connection listening capabilities upon instantiation, ensuring a hassle-free integration experience for developers seeking immediate and effortless utilization of its real-time communication, job scheduling, and message queue management features within their applications.
 
-Additionally, `ChronoSocketHub` inherently handles disconnections, automatically managing and responding to socket disconnect events. This built-in functionality ensures that disconnections are gracefully managed without requiring explicit developer intervention, maintaining the stability and reliability of real-time connections within the application."
+Additionally, `ChronoSocketHub` inherently handles disconnections, automatically managing and responding to socket disconnect events. This built-in functionality ensures that disconnections are gracefully managed without requiring explicit developer intervention, maintaining the stability and reliability of real-time connections within the application.
 
 ### Listening for subscriptions
 
