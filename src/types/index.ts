@@ -2,6 +2,7 @@ import { Express } from "express";
 
 export interface ChronoSocketConfig {
   agent?: "agenda" | "bullmq";
+  /** database for agenda or bullmq */
   db?: string;
   socketPath?: string;
   origin?: string;
