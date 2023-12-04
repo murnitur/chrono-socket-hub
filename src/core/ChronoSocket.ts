@@ -46,7 +46,8 @@ class ChronoSocket {
     this.io.on("connection", (socket: Socket) => {
       const clientId = socket.id;
       this.sockets.set(clientId, socket);
-      log(`New connection from ${socket.id} established!!!`);
+      this.config.logging &&
+        log(`New connection from ${socket.id} established!!!`);
 
       socket.on("disconnect", () => {
         this.handleDisconnection(clientId);
@@ -54,15 +55,17 @@ class ChronoSocket {
     });
   };
 
-  private handleDisconnection(clientId: string) {
+  private handleDisconnection = (clientId: string) => {
     this.sockets.delete(clientId);
-  }
+  };
 
   /**
    * Listens for subscription to a room
    * @cb callback function
    */
-  onSubscribe(callback: (clientId: string, room: string | string[]) => void) {
+  onSubscribe = (
+    callback: (clientId: string, room: string | string[]) => void
+  ) => {
     this.io.on("connection", (socket: Socket) => {
       socket.on("subscribe", (subscription: string | string[]) => {
         const clientId = socket.id;
@@ -73,23 +76,92 @@ class ChronoSocket {
       });
     });
     return this;
-  }
+  };
 
   /**
-   * Sends a message to a room
+   * Listens for un-subscription to a room or rooms
+   * @cb callback function
+   */
+  onUnSubscribe = (
+    callback: (clientId: string, room: string | string[]) => void
+  ) => {
+    this.io.on("connection", (socket: Socket) => {
+      socket.on("un-subscribe", (subscription: string | string[]) => {
+        const subscriptions = Array.isArray(subscription)
+          ? subscription
+          : [subscription];
+
+        for (const sub of subscriptions) {
+          this.config.volatile ? socket.volatile.leave(sub) : socket.leave(sub);
+        }
+
+        const clientId = socket.id;
+        callback(clientId, subscription);
+      });
+    });
+    return this;
+  };
+
+  /**
+   * Listen to custom events
+   * @eventName Name of the event
+   * @listener callback function
+   */
+  on = (
+    eventName: string,
+    callback: (clientId: string, ...args: any[]) => void
+  ) => {
+    this.io.on("connection", (socket: Socket) => {
+      socket.on(eventName, (...args: any[]) => {
+        callback(socket.id, ...args);
+      });
+    });
+    return this;
+  };
+
+  /**
+   * Removes the specified listener from the listener array for the event eventName.
+   * @eventName Name of the event
+   * @listener callback function
+   */
+  removeListener = (
+    eventName: string,
+    callback: (clientId: string, ...args: any[]) => void
+  ) => {
+    this.io.on("connection", (socket: Socket) => {
+      socket.removeListener(eventName, (...args: any[]) => {
+        callback(socket.id, ...args);
+      });
+    });
+    return this;
+  };
+
+  /**
+   * Removes all listeners, or those of the specified eventName.
+   * @eventName Name of the event
+   */
+  removeAllListener = (eventName: string | symbol) => {
+    this.io.on("connection", (socket: Socket) => {
+      socket.removeAllListeners(eventName);
+    });
+    return this;
+  };
+
+  /**
+   * Sends a message to a room or broadcast
    * @clientId needed to identify the client socket to receive the message
    * @room room to send message to
    * @eventName name of event to trigger message
    * @payload message to send
    * @broadcast If true, the message will be broadcast to everyone in the room except the sender of the message. Defaults to true
    */
-  sendMessage(
+  sendMessage = (
     clientId: string,
     eventName: string,
     payload: any,
     broadcast: boolean = true,
     room?: string | string[]
-  ) {
+  ) => {
     const socket = this.sockets.get(clientId);
     if (socket) {
       // const payload = Helper.isJSON(body) ? JSON.stringify(body) : body;
@@ -122,13 +194,13 @@ class ChronoSocket {
     } else {
       log(`Socket for client ${clientId} not found.`, "error");
     }
-  }
+  };
 
   /**
    * Listens to messages from client
    * @cb callback function
    */
-  onMessage(callback: (clientId: string, ...args: any[]) => void) {
+  onMessage = (callback: (clientId: string, ...args: any[]) => void) => {
     this.io.on("connection", (socket: Socket) => {
       socket.on("message", (...args: any[]) => {
         const clientId = socket.id;
@@ -136,11 +208,15 @@ class ChronoSocket {
       });
     });
     return this;
-  }
+  };
 
-  getSockets() {
+  getSockets = () => {
     return this.sockets;
-  }
+  };
+
+  getSocket = (clientId: string) => {
+    return this.sockets.get(clientId);
+  };
 }
 
 export default ChronoSocket;
