@@ -130,6 +130,13 @@ This function facilitates message delivery by first retrieving the socket associ
 
 If the specified client socket is not found, an error message is logged, ensuring graceful error handling within the communication system.
 
+```ts
+chronoSocket.onMessage((client, payload) => {
+  const { room } = payload;
+  chronoSocket.sendMessage(client, "message", payload, true, room);
+});
+```
+
 ### Get all sockets
 
 The `getSockets` function in `ChronoSocketHub` provides access to a Map containing socket connections. This function allows developers to retrieve and interact with an organized collection of active socket connections established within the `ChronoSocketHub` instance. Leveraging a Map data structure, `getSockets` enables developers to access, iterate through, or perform operations on individual socket connections. By utilizing this function, developers gain insight into the current state of active connections and can implement customized logic or management strategies tailored to specific socket instances within their real-time communication environment.
