@@ -1,14 +1,15 @@
 import http from "http";
 import { Server, Socket } from "socket.io";
-import { ChronoSocketConfig } from "../types";
+import { ChronoSocketConfig, JobData } from "../types";
 import { log } from "@drantaz/f-log";
 import ChronoAgenda from "./ChronoAgenda";
+import shortid from "shortid";
 
 const allowedLogCases = [true, false];
 
 class ChronoSocket {
   /** ChronoAgenda */
-  chronoAgenda: ChronoAgenda;
+  private chronoAgenda: ChronoAgenda;
   /** generic node http server */
   server: http.Server;
   /** configuration setting */
@@ -214,6 +215,46 @@ class ChronoSocket {
       });
     });
     return this;
+  };
+
+  /**
+   * Schedule a task to be executed at specified time.
+   *
+   * Please ensure you've specified an 'agent' – either 'agenda' or 'bullmq' – and a valid database connection string in the configuration settings.
+   * This ensures proper functioning and connectivity within the system.
+   *
+   * The 'agent' defines the job scheduling mechanism, while the database connection string establishes a link to the required database for seamless operation.
+   * @taskName identifier of the task
+   * @when when you want the task to be executed
+   * @chronology "interval (run everytime at the set time)" | "scheduled (runs once at the specified time)"
+   * @action callback action to be executed when the task is executed
+   * @returns Job created
+   */
+  scheduleTask = async (
+    taskName: string,
+    when: Date | string,
+    chronology: JobData["chronology"],
+    action: Function
+  ) => {
+    if (this.config.agent && this.config.db) {
+      const payload: JobData = {
+        agent: this.config.agent,
+        chronology,
+        reference: shortid.generate(),
+        type: "task",
+      };
+      return await this.chronoAgenda.scheduleTask(
+        taskName,
+        payload,
+        when,
+        action
+      );
+    } else {
+      log(
+        "Please ensure you've specified an 'agent' - either 'agenda' or 'bullmq' - and a valid database connection string in the configuration settings. This ensures proper functioning and connectivity within the system. The 'agent' defines the job scheduling mechanism, while the database connection string establishes a link to the required database for seamless operation.",
+        "error"
+      );
+    }
   };
 
   getSockets = () => {

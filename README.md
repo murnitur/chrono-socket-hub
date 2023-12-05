@@ -156,6 +156,62 @@ chronoSocket.onMessage((client, payload) => {
 });
 ```
 
+## Job Scheduling and Execution
+
+`ChronoSocketHub` seamlessly integrates job scheduling capabilities, allowing developers to orchestrate and manage time-sensitive tasks within their applications. Leveraging either Agenda or BullMQ as the underlying agents, `ChronoSocketHub` empowers developers to schedule, execute, and handle recurring or one-time jobs efficiently. This functionality enables the creation of automated tasks, periodic operations, and background processes, offering a robust solution for managing complex job scheduling requirements within the application ecosystem.
+
+### Schedling a cron task
+
+The `scheduleTask` method in `ChronoSocketHub` facilitates the scheduling of tasks using cron syntax, Date or plain English ("20 seconds", "in 5 minutes"), providing developers with precise control over when and how tasks are executed within their applications. This method allows users to define a unique identifier for the task, specify the desired chronology (one-time or interval-based), and pass a callback function or event handler to be triggered when the scheduled time elapses.
+
+To utilize this feature, developers can invoke the `scheduleTask` method, providing:
+
+- A distinctive name or identifier for the task.
+- When you want to execute the task using cron syntax, Date or plain English ("20 seconds", "in 5 minutes").
+- The desired chronology: either a one-time execution (schedule) or an interval-based recurrence (interval).
+- A callback function or an event handler to be triggered when the scheduled time is reached.
+
+This functionality empowers developers to orchestrate automated actions, periodic tasks, or event-driven processes within their application, offering a flexible and efficient solution for managing scheduled tasks using a familiar cron-based syntax.
+
+```ts
+// call a restful API every 20 seconds
+const task = await chrono.scheduleTask(
+  "task-name",
+  "20 seconds",
+  "interval"
+  async () => {
+    axios
+      .get("https://jsonplaceholder.typicode.com/todos/1")
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+);
+
+// notify me at 09:00AM
+await chrono.scheduleTask(
+    "notify-me",
+    "2023-12-06T09:00:00.756Z",
+    "schedule",
+    async () => {
+      await admin.messaging().sendToDevice(tokens, payload);
+    }
+);
+
+// Back-up database every midnight
+await chrono.scheduleTask(
+    "backup-database",
+    "0 0 * * *",
+    "interval",
+    async () => {
+      await DataHub.backup({debug: false});
+    }
+);
+```
+
 ## Configurations:
 
 | Option       | Description                                                                                            | Default Value     | Data Type              |

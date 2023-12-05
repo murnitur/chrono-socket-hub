@@ -1,9 +1,8 @@
 import { log } from "@drantaz/f-log";
 import { JobData } from "../types";
 import { v4 as uuidv4 } from "uuid";
-import Agenda from "agenda";
+import Agenda, { Job } from "agenda";
 import JobHandler from "../jobs/handler";
-import shortid from "shortid";
 
 export default class ChronoAgenda {
   private agenda: Agenda;
@@ -19,15 +18,15 @@ export default class ChronoAgenda {
       maxConcurrency: 100,
     });
     this.logging = logging;
-    this.agenda
-      .start()
-      .then(() => {
+    (async () => {
+      try {
+        await this.agenda.start();
         this.logging &&
           log("Chrono job with agenda has started", "info", false);
-      })
-      .catch((err) => {
+      } catch (err) {
         this.logging && log(err.message, "error", false);
-      });
+      }
+    })();
   }
 
   /**
@@ -39,24 +38,21 @@ export default class ChronoAgenda {
   scheduleTask = async (
     name: string,
     payload: JobData,
-    when: Date | string
+    when: Date | string,
+    callback: Function
   ) => {
-    const reference = shortid.generate();
+    await this.agenda.start();
     const jobName = `${name}-${uuidv4()}`;
-    this.agenda.define(
-      jobName,
-      payload.type === "message"
-        ? JobHandler.sendMessage
-        : JobHandler.manageTask
-    );
-    const record = await (payload.chronology === "interval"
-      ? this.agenda.every(
-          typeof when === "object" ? when.toISOString() : when,
-          jobName,
-          { ...payload, reference },
-          { skipImmediate: false }
-        )
-      : this.agenda.schedule(when, jobName, { ...payload, reference }));
+    this.agenda.define(jobName, JobHandler.manageTask(callback));
+    const record =
+      payload.chronology === "interval"
+        ? await this.agenda.every(
+            typeof when === "object" ? when.toISOString() : when,
+            jobName,
+            payload,
+            { skipImmediate: true }
+          )
+        : await this.agenda.schedule(when, jobName, payload);
     return record;
   };
 

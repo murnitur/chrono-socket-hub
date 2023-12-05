@@ -20,6 +20,5 @@ export interface JobData {
   type: "task" | "message";
   reference: string;
   chronology: "schedule" | "interval";
-  callback?: string;
   data?: any;
 }
