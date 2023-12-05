@@ -207,7 +207,7 @@ await chrono.scheduleTask(
     "0 0 * * *",
     "interval",
     async () => {
-      await DataHub.backup({debug: false});
+      await DataHub.backup({ debug: false });
     }
 );
 ```
