@@ -2,10 +2,13 @@ import http from "http";
 import { Server, Socket } from "socket.io";
 import { ChronoSocketConfig } from "../types";
 import { log } from "@drantaz/f-log";
+import ChronoAgenda from "./ChronoAgenda";
 
 const allowedLogCases = [true, false];
 
 class ChronoSocket {
+  /** ChronoAgenda */
+  chronoAgenda: ChronoAgenda;
   /** generic node http server */
   server: http.Server;
   /** configuration setting */
@@ -36,6 +39,10 @@ class ChronoSocket {
       },
     });
     this.init();
+    // setup agenda
+    if (this.config.agent === "agenda" && this.config.db) {
+      this.chronoAgenda = new ChronoAgenda(this.config.db, this.config.logging);
+    }
   }
 
   /**

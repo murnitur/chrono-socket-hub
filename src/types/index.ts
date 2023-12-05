@@ -14,3 +14,12 @@ export interface ChronoSocketConfig {
    */
   volatile?: boolean;
 }
+
+export interface JobData {
+  agent: "agenda" | "bullmq";
+  type: "task" | "message";
+  reference: string;
+  chronology: "schedule" | "interval";
+  callback?: string;
+  data?: any;
+}
