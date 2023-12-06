@@ -264,7 +264,7 @@ const jobs = await chrono.getJobs({ agent: "agenda" });
 | `db`                      | Specifies the database for Agenda or BullMQ.                                                           | `undefined`       | `string`               |
 | `redisPassword`           | Specifies the password for your redis connection.                                                      | `undefined`       | `string`               |
 | `allowBullMQRejuvenation` | Specifies whether you want to rejuvenate jobs on server restart.                                       | `false`           | `boolean`              |
-| `socketPath`              | Specifies the path for the socket connection.                                                          | `/`               | `string`               |
+| `socketPath`              | Specifies the path for the socket connection.                                                          | `/ws/chrono`      | `string`               |
 | `origin`                  | Sets the allowed origins for CORS (Cross-Origin Resource Sharing).                                     | `*`               | `string`               |
 | `methods`                 | Defines the allowed HTTP methods for CORS.                                                             | `['GET', 'POST']` | `string[]`             |
 | `logging`                 | Indicates whether logging is enabled.                                                                  | `true`            | `boolean`              |

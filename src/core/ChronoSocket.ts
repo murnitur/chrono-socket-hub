@@ -25,7 +25,7 @@ class ChronoSocket {
 
   constructor(config?: ChronoSocketConfig) {
     this.config.db = config?.db || undefined;
-    this.config.socketPath = config?.socketPath || "/";
+    this.config.socketPath = config?.socketPath || "/ws/chrono";
     this.config.origin = config?.origin || "*";
     this.config.methods = config?.methods || ["GET", "POST"];
     this.config.agent = config?.agent || "agenda";
@@ -284,7 +284,8 @@ class ChronoSocket {
     } else {
       log(
         "Please ensure you've specified an 'agent' - either 'agenda' or 'bullmq' - and a valid database connection string in the configuration settings. This ensures proper functioning and connectivity within the system. The 'agent' defines the job scheduling mechanism, while the database connection string establishes a link to the required database for seamless operation.",
-        "error"
+        "error",
+        false
       );
     }
   };
@@ -295,10 +296,18 @@ class ChronoSocket {
    * @returns jobs
    */
   getJobs = async (config: { agent: ChronoSocketConfig["agent"] }) => {
-    if (config.agent === "agenda") {
-      return await this.chronoAgenda.getJobs();
+    if (this.config.agent && this.config.db) {
+      if (config.agent === "agenda") {
+        return await this.chronoAgenda.getJobs();
+      } else {
+        return await this.chronoBullMQ.getJobs();
+      }
     } else {
-      return await this.chronoBullMQ.getJobs();
+      log(
+        "Please ensure you've specified an 'agent' - either 'agenda' or 'bullmq' - and a valid database connection string in the configuration settings. This ensures proper functioning and connectivity within the system. The 'agent' defines the job scheduling mechanism, while the database connection string establishes a link to the required database for seamless operation.",
+        "error",
+        false
+      );
     }
   };
 
