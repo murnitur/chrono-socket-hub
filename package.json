@@ -31,7 +31,7 @@
     "Wrapper"
   ],
   "author": "Caleb Okpara",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/cheese-framework/chrono-socket-hub/issues"
   },
