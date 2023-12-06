@@ -177,7 +177,8 @@ This functionality empowers developers to orchestrate automated actions, periodi
 
 ```ts
 // instantiate ChronoSocketHub
-const chrono = new ChronoSocket({ agent: 'agenda', db: 'mongodb://localhost:27017/test-chrono-agendas' });
+const chrono = new ChronoSocket({ agent: 'agenda',
+db: 'mongodb://localhost:27017/test-chrono-agendas' });
 
 // call a restful API every 20 seconds
 const task = await chrono.scheduleTask(
