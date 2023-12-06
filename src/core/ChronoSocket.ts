@@ -1,15 +1,19 @@
 import http from "http";
 import { Server, Socket } from "socket.io";
-import { ChronoSocketConfig, JobData } from "../types";
+import { ChronoSocketConfig, JobData, RedisConcurrency } from "../types";
 import { log } from "@drantaz/f-log";
 import ChronoAgenda from "./ChronoAgenda";
 import shortid from "shortid";
+import ChronoBullMQ from "./ChronoBullMQ";
+import serializeJavascript from "serialize-javascript";
 
 const allowedLogCases = [true, false];
 
 class ChronoSocket {
   /** ChronoAgenda */
   private chronoAgenda: ChronoAgenda;
+  /** ChronoBullMQ */
+  private chronoBullMQ: ChronoBullMQ;
   /** generic node http server */
   server: http.Server;
   /** configuration setting */
@@ -25,9 +29,11 @@ class ChronoSocket {
     this.config.origin = config?.origin || "*";
     this.config.methods = config?.methods || ["GET", "POST"];
     this.config.agent = config?.agent || "agenda";
+    this.config.redisPassword = config?.redisPassword || "";
     this.config.logging = allowedLogCases.includes(config?.logging)
       ? config.logging
       : true;
+    this.config.allowBullMQRejuvenation = config.allowBullMQRejuvenation;
     this.config.volatile = config.volatile || false;
     this.config.app = config?.app || undefined;
     this.server = http.createServer(this.config.app);
@@ -43,6 +49,16 @@ class ChronoSocket {
     // setup agenda
     if (this.config.agent === "agenda" && this.config.db) {
       this.chronoAgenda = new ChronoAgenda(this.config.db, this.config.logging);
+    }
+    // setup bullMQ
+    if (this.config.agent === "bullmq" && this.config.db) {
+      const [host, port] = this.config.db.split(":");
+      this.chronoBullMQ = new ChronoBullMQ(
+        host,
+        parseInt(port),
+        this.config.redisPassword,
+        this.config.allowBullMQRejuvenation
+      );
     }
   }
 
@@ -232,28 +248,57 @@ class ChronoSocket {
    */
   scheduleTask = async (
     taskName: string,
-    when: Date | string,
+    when: Date | string | RedisConcurrency,
     chronology: JobData["chronology"],
-    action: Function
+    action: Function,
+    data?: any
   ) => {
     if (this.config.agent && this.config.db) {
+      const time: string | Date = when as any;
       const payload: JobData = {
+        when: time,
         agent: this.config.agent,
         chronology,
         reference: shortid.generate(),
         type: "task",
       };
-      return await this.chronoAgenda.scheduleTask(
-        taskName,
-        payload,
-        when,
-        action
-      );
+      if (this.config.agent == "agenda") {
+        return await this.chronoAgenda.scheduleTask(
+          taskName,
+          payload,
+          time,
+          action
+        );
+      } else {
+        return await this.chronoBullMQ.scheduleTask(
+          taskName,
+          {
+            fn: serializeJavascript(action),
+            ...data,
+          },
+          chronology,
+          when as RedisConcurrency,
+          action
+        );
+      }
     } else {
       log(
         "Please ensure you've specified an 'agent' - either 'agenda' or 'bullmq' - and a valid database connection string in the configuration settings. This ensures proper functioning and connectivity within the system. The 'agent' defines the job scheduling mechanism, while the database connection string establishes a link to the required database for seamless operation.",
         "error"
       );
+    }
+  };
+
+  /**
+   * Get access to the jobs configured with Agenda or BullMQ
+   * agent type of jobs instances to return
+   * @returns jobs
+   */
+  getJobs = async (config: { agent: ChronoSocketConfig["agent"] }) => {
+    if (config.agent === "agenda") {
+      return await this.chronoAgenda.getJobs();
+    } else {
+      return await this.chronoBullMQ.getJobs();
     }
   };
 

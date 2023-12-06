@@ -1,9 +1,13 @@
+import { RepeatOptions } from "bullmq";
 import { Express } from "express";
 
 export interface ChronoSocketConfig {
   agent?: "agenda" | "bullmq";
   /** database for agenda or bullmq */
   db?: string;
+  redisPassword?: string;
+  /** Allow rejuvenation of redis jobs */
+  allowBullMQRejuvenation?: boolean;
   socketPath?: string;
   origin?: string;
   methods?: string[];
@@ -16,9 +20,16 @@ export interface ChronoSocketConfig {
 }
 
 export interface JobData {
+  when: string | Date;
   agent: "agenda" | "bullmq";
   type: "task" | "message";
   reference: string;
   chronology: "schedule" | "interval";
+  callback?: string;
   data?: any;
+}
+
+export interface RedisConcurrency {
+  when: string | Date;
+  repeatInterval?: RepeatOptions;
 }

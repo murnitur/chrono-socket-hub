@@ -1,7 +1,8 @@
 import { log } from "@drantaz/f-log";
 import { JobData } from "../types";
 import { v4 as uuidv4 } from "uuid";
-import Agenda, { Job } from "agenda";
+import serializeJavascript from "serialize-javascript";
+import Agenda from "agenda";
 import JobHandler from "../jobs/handler";
 
 export default class ChronoAgenda {
@@ -18,15 +19,6 @@ export default class ChronoAgenda {
       maxConcurrency: 100,
     });
     this.logging = logging;
-    (async () => {
-      try {
-        await this.agenda.start();
-        this.logging &&
-          log("Chrono job with agenda has started", "info", false);
-      } catch (err) {
-        this.logging && log(err.message, "error", false);
-      }
-    })();
   }
 
   /**
@@ -43,21 +35,36 @@ export default class ChronoAgenda {
   ) => {
     await this.agenda.start();
     const jobName = `${name}-${uuidv4()}`;
-    this.agenda.define(jobName, JobHandler.manageTask(callback));
+    this.agenda.define(
+      jobName,
+      { shouldSaveResult: true },
+      JobHandler.manageTask(callback)
+    );
     const record =
       payload.chronology === "interval"
         ? await this.agenda.every(
             typeof when === "object" ? when.toISOString() : when,
             jobName,
-            payload,
+            {
+              ...payload,
+              callback: serializeJavascript(callback),
+              name,
+            },
             { skipImmediate: true }
           )
-        : await this.agenda.schedule(when, jobName, payload);
+        : await this.agenda.schedule(when, jobName, {
+            ...payload,
+            callback: serializeJavascript(callback),
+            name,
+          });
     return record;
   };
 
   /**
-   * Rejuvenate jobs
+   * Get access to the jobs configured in Agenda.
    */
-  rejuvenate = async () => {};
+  getJobs = async () => {
+    await this.agenda.start();
+    return this.agenda.jobs();
+  };
 }

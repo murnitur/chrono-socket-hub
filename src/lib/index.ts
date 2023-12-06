@@ -8,6 +8,12 @@ export default class Helper {
     }
   };
 
+  static isValidDate = (dateString: string): boolean => {
+    const date = new Date(dateString);
+
+    return !isNaN(date.getTime()) && date.toString() !== "Invalid Date";
+  };
+
   static isArrayOfStrings = (data: any) => {
     if (Array.isArray(data)) {
       for (let index = 0; index < data.length; index++) {

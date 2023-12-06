@@ -173,7 +173,12 @@ To utilize this feature, developers can invoke the `scheduleTask` method, provid
 
 This functionality empowers developers to orchestrate automated actions, periodic tasks, or event-driven processes within their application, offering a flexible and efficient solution for managing scheduled tasks using a familiar cron-based syntax.
 
+### Using Agenda as an agent
+
 ```ts
+// instantiate ChronoSocketHub
+const chrono = new ChronoSocket({ agent: 'agenda', db:        'mongodb://localhost:27017/test-chrono-agendas' });
+
 // call a restful API every 20 seconds
 const task = await chrono.scheduleTask(
   "task-name",
@@ -212,17 +217,59 @@ await chrono.scheduleTask(
 );
 ```
 
+### Using BullMQ as an agent
+
+```ts
+// instantiate ChronoSocketHub
+const chrono = new ChronoSocket({
+  agent: "bullmq",
+  db: "localhost:6379",
+  redisPassword: "password",
+  allowBullMQRejuvenation: true,
+});
+
+await chrono.scheduleTask(
+  "task-name",
+  { when: "30 seconds", repeatInterval: { pattern: "*/30 * * * * *" } },
+  "interval",
+  async (job: Job) => {
+    console.log(job.data);
+  },
+  { name: "John Doe" }
+);
+```
+
+When employing BullMQ as the agent in the `scheduleTask` function, the scheduling mechanism differs from that of Agenda. `ChronoSocketHub` utilizes the `RedisConcurrency` interface to define scheduling options for tasks. This interface offers enhanced flexibility by accepting a `when` property, which can be either a string or a Date object, indicating the time when the task should be scheduled. Additionally, the `repeatInterval` property, if provided as a part of the `RedisConcurrency` interface, allows for specifying options for repeated execution of the task, providing advanced configuration for recurring tasks within the BullMQ scheduler. Leveraging this interface grants users fine-grained control over task scheduling, enabling the precise definition of both single and repeated task execution times within the BullMQ-based scheduling environment.
+
+**Note**: When utilizing the `schedule` type of chronology with `ChronoSocketHub`'s `RedisConcurrency` interface in the `scheduleTask` function, the `repeatInterval` property becomes optional. For single, one-time scheduling (`type: 'schedule'`), the `repeatInterval` property is not mandatory and can be omitted from the scheduling options. This distinction allows users to define singular, non-recurring task executions without the need to specify a repeat interval when using BullMQ's scheduling mechanism.
+
+> **Important Note for Agenda Agent Usage in ChronoSocketHub:**
+>
+> When integrating Agenda as an agent in `ChronoSocketHub`, please note that manual setup for job rejuvenation is required. Ensure to configure the rejuvenation process for jobs within the Agenda agent to maintain smooth operation and scheduling.
+>
+> **Note**: While our system supports rejuvenation (recovery of scheduled jobs) when BullMQ is the triggered agent, it's essential to acknowledge that this feature is currently in beta. As a result, there is no guarantee of flawless functionality or consistent job recovery after a server restart. At present, there are no immediate plans to transition this feature to a stable phase. Therefore, caution is advised when relying solely on this functionality for resuming scheduled jobs after a server restart in production environments.
+>
+> Additionally, users seeking to access a comprehensive list of all jobs within the BullMQ or Agenda scheduler can refer to the appropriate methods provided by `ChronoSocketHub`. This method allows you to retrieve and manage the entirety of scheduled jobs within your BullMQ or Agenda setup:
+>
+> ```typescript
+> const jobs = await chrono.getJobs({ agent: "agenda" });
+> ```
+>
+> <br />
+
 ## Configurations:
 
-| Option       | Description                                                                                            | Default Value     | Data Type              |
-| ------------ | ------------------------------------------------------------------------------------------------------ | ----------------- | ---------------------- |
-| `agent`      | Defines the job scheduling agent for `ChronoSocketHub` (`agenda` or `bullmq`).                         | `agenda`          | `"agenda" \| "bullmq"` |
-| `db`         | Specifies the database for Agenda or BullMQ.                                                           | `undefined`       | `string`               |
-| `socketPath` | Specifies the path for the socket connection.                                                          | `/`               | `string`               |
-| `origin`     | Sets the allowed origins for CORS (Cross-Origin Resource Sharing).                                     | `*`               | `string`               |
-| `methods`    | Defines the allowed HTTP methods for CORS.                                                             | `['GET', 'POST']` | `string[]`             |
-| `logging`    | Indicates whether logging is enabled.                                                                  | `true`            | `boolean`              |
-| `app`        | Express application instance for integration.                                                          | `undefined`       | `Express`              |
-| `volatile`   | Optimizes event transmission for scenarios where sending an event depends on client connection status. | `false`           | `boolean`              |
+| Option                    | Description                                                                                            | Default Value     | Data Type              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------- | ---------------------- |
+| `agent`                   | Defines the job scheduling agent for `ChronoSocketHub` (`agenda` or `bullmq`).                         | `agenda`          | `"agenda" \| "bullmq"` |
+| `db`                      | Specifies the database for Agenda or BullMQ.                                                           | `undefined`       | `string`               |
+| `redisPassword`           | Specifies the password for your redis connection.                                                      | `undefined`       | `string`               |
+| `allowBullMQRejuvenation` | Specifies whether you want to rejuvenate jobs on server restart.                                       | `false`           | `boolean`              |
+| `socketPath`              | Specifies the path for the socket connection.                                                          | `/`               | `string`               |
+| `origin`                  | Sets the allowed origins for CORS (Cross-Origin Resource Sharing).                                     | `*`               | `string`               |
+| `methods`                 | Defines the allowed HTTP methods for CORS.                                                             | `['GET', 'POST']` | `string[]`             |
+| `logging`                 | Indicates whether logging is enabled.                                                                  | `true`            | `boolean`              |
+| `app`                     | Express application instance for integration.                                                          | `undefined`       | `Express`              |
+| `volatile`                | Optimizes event transmission for scenarios where sending an event depends on client connection status. | `false`           | `boolean`              |
 
 This table summarizes each configuration option available in `ChronoSocketHub`, providing insight into their descriptions, default values, and respective data types. Developers can adjust these settings according to their application requirements.
