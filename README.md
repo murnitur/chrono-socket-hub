@@ -244,19 +244,17 @@ When employing BullMQ as the agent in the `scheduleTask` function, the schedulin
 
 **Note**: When utilizing the `schedule` type of chronology with `ChronoSocketHub`'s `RedisConcurrency` interface in the `scheduleTask` function, the `repeatInterval` property becomes optional. For single, one-time scheduling (`type: 'schedule'`), the `repeatInterval` property is not mandatory and can be omitted from the scheduling options. This distinction allows users to define singular, non-recurring task executions without the need to specify a repeat interval when using BullMQ's scheduling mechanism.
 
-> **Important Note for Agenda Agent Usage in ChronoSocketHub:**
->
-> When integrating Agenda as an agent in `ChronoSocketHub`, please note that manual setup for job rejuvenation is required. Ensure to configure the rejuvenation process for jobs within the Agenda agent to maintain smooth operation and scheduling.
->
-> **Note**: While our system supports rejuvenation (recovery of scheduled jobs) when BullMQ is the triggered agent, it's essential to acknowledge that this feature is currently in beta. As a result, there is no guarantee of flawless functionality or consistent job recovery after a server restart. At present, there are no immediate plans to transition this feature to a stable phase. Therefore, caution is advised when relying solely on this functionality for resuming scheduled jobs after a server restart in production environments.
->
-> Additionally, users seeking to access a comprehensive list of all jobs within the BullMQ or Agenda scheduler can refer to the appropriate methods provided by `ChronoSocketHub`. This method allows you to retrieve and manage the entirety of scheduled jobs within your BullMQ or Agenda setup:
->
-> ```typescript
-> const jobs = await chrono.getJobs({ agent: "agenda" });
-> ```
->
-> <br />
+**Important Note for Agenda Agent Usage in ChronoSocketHub:**
+
+When integrating Agenda as an agent in `ChronoSocketHub`, please note that manual setup for job rejuvenation is required. Ensure to configure the rejuvenation process for jobs within the Agenda agent to maintain smooth operation and scheduling.
+
+**Note**: While our system supports rejuvenation (recovery of scheduled jobs) when BullMQ is the triggered agent, it's essential to acknowledge that this feature is currently in beta. As a result, there is no guarantee of flawless functionality or consistent job recovery after a server restart. At present, there are no immediate plans to transition this feature to a stable phase. Therefore, caution is advised when relying solely on this functionality for resuming scheduled jobs after a server restart in production environments.
+
+Additionally, users seeking to access a comprehensive list of all jobs within the BullMQ or Agenda scheduler can refer to the appropriate methods provided by `ChronoSocketHub`. This method allows you to retrieve and manage the entirety of scheduled jobs within your BullMQ or Agenda setup:
+
+```typescript
+const jobs = await chrono.getJobs({ agent: "agenda" });
+```
 
 ## Configurations:
 
