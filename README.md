@@ -253,7 +253,7 @@ When integrating Agenda as an agent in `ChronoSocketHub`, please note that manua
 Additionally, users seeking to access a comprehensive list of all jobs within the BullMQ or Agenda scheduler can refer to the appropriate methods provided by `ChronoSocketHub`. This method allows you to retrieve and manage the entirety of scheduled jobs within your BullMQ or Agenda setup:
 
 ```typescript
-const jobs = await chrono.getJobs({ agent: "agenda" });
+const jobs = await chrono.getJobs();
 ```
 
 ## Configurations:

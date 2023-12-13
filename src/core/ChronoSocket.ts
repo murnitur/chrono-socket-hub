@@ -19,7 +19,7 @@ class ChronoSocket {
   /** configuration setting */
   private config: ChronoSocketConfig = {};
   /** Socket IO connection */
-  private io: Server;
+  public io: Server;
   /** Socket connection */
   private sockets: Map<string, Socket>;
 
@@ -295,9 +295,9 @@ class ChronoSocket {
    * agent type of jobs instances to return
    * @returns jobs
    */
-  getJobs = async (config: { agent: ChronoSocketConfig["agent"] }) => {
+  getJobs = async () => {
     if (this.config.agent && this.config.db) {
-      if (config.agent === "agenda") {
+      if (this.config.agent === "agenda") {
         return await this.chronoAgenda.getJobs();
       } else {
         return await this.chronoBullMQ.getJobs();
@@ -309,6 +309,14 @@ class ChronoSocket {
         false
       );
     }
+  };
+
+  /**
+   * Get number of connected clients in a room or channel.
+   * @room Name of the room
+   */
+  getRoomCount = (room: string): number => {
+    return this.io.sockets.adapter.rooms.get(room)?.size;
   };
 
   getSockets = () => {
